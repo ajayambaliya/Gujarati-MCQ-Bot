@@ -153,8 +153,8 @@ def send_telegram_poll(question_text, options, correct_index):
         'question': question_text,
         'options': truncated_options,
         'type': 'quiz',
-        'correct_option_id': correct_index,
-        'is_anonymous': False
+        'correct_option_id': correct_index
+        # Note: is_anonymous is not supported for channel chats
     }
     
     try:
@@ -196,9 +196,11 @@ def format_and_send_question(question):
     correct = question['correct']
     explanation = question['explanation']
     
-    # Map correct answer to index
-    correct_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3}
-    correct_index = correct_map.get(correct.upper(), 0)
+    # Map correct answer to index (handle both uppercase and lowercase)
+    correct_map = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'a': 0, 'b': 1, 'c': 2, 'd': 3}
+    correct_index = correct_map.get(correct.strip(), 0)
+    
+    print(f"Correct answer: '{correct}' → Index: {correct_index}")
     
     # Prepare options list
     options = [opt_a, opt_b, opt_c, opt_d]
