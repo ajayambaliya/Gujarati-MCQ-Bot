@@ -93,14 +93,15 @@ def truncate_explanation(explanation, max_length):
     return truncated
 
 
-def send_telegram_message(text):
+def send_telegram_message(text, disable_web_preview=True):
     """Send text message to Telegram"""
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     
     payload = {
         'chat_id': TELEGRAM_CHANNEL_ID,
         'text': text,
-        'parse_mode': 'HTML'
+        'parse_mode': 'HTML',
+        'disable_web_page_preview': disable_web_preview
     }
     
     try:
@@ -110,6 +111,80 @@ def send_telegram_message(text):
     except Exception as e:
         print(f"✗ Error sending message: {e}")
         raise
+
+
+def fetch_random_quote():
+    """Fetch a random motivational quote from GitHub Gist"""
+    try:
+        url = "https://gist.githubusercontent.com/nasrulhazim/54b659e43b1035215cd0ba1d4577ee80/raw/e3c6895ce42069f0ee7e991229064f167fe8ccdc/quotes.json"
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        
+        data = response.json()
+        quotes = data.get('quotes', [])
+        
+        if not quotes:
+            return None
+        
+        # Try to find a short quote (≤ 150 chars)
+        import random
+        random.shuffle(quotes)
+        
+        for quote_obj in quotes:
+            quote_text = quote_obj.get('quote', '')
+            if quote_text and len(quote_text) <= 150:
+                return quote_text
+        
+        # If no short quote found, return first one truncated
+        first_quote = quotes[0].get('quote', '')
+        if len(first_quote) > 150:
+            first_quote = first_quote[:147] + "..."
+        return first_quote
+    
+    except Exception as e:
+        print(f"⚠ Failed to fetch quote: {e}")
+        return None
+
+
+def send_promotional_message():
+    """Send promotional message about the channel with motivational quote"""
+    
+    # Fetch random quote
+    quote = fetch_random_quote()
+    
+    # Build promotional message
+    promo_message = """
+╔═══════════════════════════╗
+║  📚 <b>Current Adda</b> 📚  ║
+╚═══════════════════════════╝
+
+🎯 <b>સરકારી નોકરી તૈયારી માટે બેસ્ટ ચેનલનલ</b>�
+✅ દરરોજ MCQ પ્રશ્નો
+✅ ગુજરાતી કરંટ અફેર્સ
+✅ સંપૂર્ણ મફત સામગ્રી
+
+
+🔔 <b>ચેનલ જોઈન કરો:</b>
+👉 https://t.me/currentadda
+
+💬 <b>મિત્રો સાથે શેર કરો!</b>
+આ ચેનલ તમારા સ્વપ્નાની નોકરી મેળવવામાં મદદ કરશે! 🚀
+"""
+    
+    # Add quote if available
+    if quote:
+        promo_message += f'\n💡 <i>"{quote}"</i>\n'
+    
+    promo_message += "\n<i>#GujaratGovtJobs #CurrentAffairs #MCQ #GPSC #GSSSB #Talati</i>"
+    
+    try:
+        send_telegram_message(promo_message, disable_web_preview=False)
+        print("✓ Promotional message sent")
+        if quote:
+            print(f"  Quote: {quote[:50]}...")
+    except Exception as e:
+        print(f"⚠ Failed to send promotional message: {e}")
+        # Don't fail the whole process if promo fails
 
 
 def send_telegram_poll(question_text, options, correct_index):
@@ -229,6 +304,10 @@ def format_and_send_question(question):
             explanation_message = f"📘 <b>સમજૂતી:</b>\n{explanation}"
             send_telegram_message(explanation_message)
             print("✓ Explanation sent")
+        
+        # Send promotional message
+        print()
+        send_promotional_message()
     
     # CASE 2: Question > 300 OR any option > 100 → HYBRID MODE
     else:
@@ -265,6 +344,10 @@ def format_and_send_question(question):
             explanation_message = f"📘 <b>સમજૂતી:</b>\n{explanation}"
             send_telegram_message(explanation_message)
             print("✓ Explanation sent")
+        
+        # Send promotional message
+        print()
+        send_promotional_message()
 
 
 def main():
