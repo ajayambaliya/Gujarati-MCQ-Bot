@@ -152,33 +152,23 @@ def send_promotional_message():
     # Fetch random quote
     quote = fetch_random_quote()
     
-    # Build promotional message
-    promo_message = """
-╔═══════════════════════════╗
-║  📚 <b>Current Adda</b> 📚  ║
-╚═══════════════════════════╝
+    # Build compact promotional message
+    promo_message = """📚 <b>Current Adda</b>
+🎯 <b>ગુજરાત સરકારી નોકરી તૈયારી</b>
 
-🎯 <b>સરકારી નોકરી તૈયારી માટે બેસ્ટ ચેનલનલ</b>�
 ✅ દરરોજ MCQ પ્રશ્નો
 ✅ ગુજરાતી કરંટ અફેર્સ
-✅ સંપૂર્ણ મફત સામગ્રી
 
-
-🔔 <b>ચેનલ જોઈન કરો:</b>
-👉 https://t.me/currentadda
-
-💬 <b>મિત્રો સાથે શેર કરો!</b>
-આ ચેનલ તમારા સ્વપ્નાની નોકરી મેળવવામાં મદદ કરશે! 🚀
-"""
+🔔 <b>જોઈન કરો:</b> https://t.me/currentadda"""
     
     # Add quote if available
     if quote:
-        promo_message += f'\n💡 <i>"{quote}"</i>\n'
+        promo_message += f'\n\n💡 <i>"{quote}"</i>'
     
-    promo_message += "\n<i>#GujaratGovtJobs #CurrentAffairs #MCQ #GPSC #GSSSB #Talati</i>"
+    promo_message += "\n\n<i>#GPSC #GSSSB #Talati #CurrentAffairs</i>"
     
     try:
-        send_telegram_message(promo_message, disable_web_preview=False)
+        send_telegram_message(promo_message, disable_web_preview=True)
         print("✓ Promotional message sent")
         if quote:
             print(f"  Quote: {quote[:50]}...")
