@@ -23,7 +23,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install -r telegram-bot/requirements.txt
+          pip install -r requirements.txt
       
       - name: Send random question to Telegram
         env:
