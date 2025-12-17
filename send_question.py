@@ -116,16 +116,37 @@ def send_telegram_poll(question_text, options, correct_index):
     """Send poll to Telegram"""
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPoll"
     
+    # Validate question text
+    if not question_text or not question_text.strip():
+        raise ValueError("Poll question cannot be empty")
+    
+    question_text = question_text.strip()
+    
     # Truncate question if needed
     if len(question_text) > TELEGRAM_POLL_QUESTION_LIMIT:
         question_text = question_text[:TELEGRAM_POLL_QUESTION_LIMIT - 3] + "..."
     
-    # Truncate options if needed
+    # Truncate options if needed and validate
     truncated_options = []
-    for opt in options:
+    for i, opt in enumerate(options):
+        # Ensure option is not empty
+        if not opt or not opt.strip():
+            opt = f"Option {chr(65+i)}"  # A, B, C, D
+        
+        opt = opt.strip()
+        
         if len(opt) > TELEGRAM_POLL_OPTION_LIMIT:
             opt = opt[:TELEGRAM_POLL_OPTION_LIMIT - 3] + "..."
+        
         truncated_options.append(opt)
+    
+    # Validate: Must have at least 2 options
+    if len(truncated_options) < 2:
+        raise ValueError("Poll must have at least 2 options")
+    
+    # Validate: correct_index must be valid
+    if correct_index < 0 or correct_index >= len(truncated_options):
+        raise ValueError(f"Invalid correct_index: {correct_index} (must be 0-{len(truncated_options)-1})")
     
     payload = {
         'chat_id': TELEGRAM_CHANNEL_ID,
@@ -137,11 +158,23 @@ def send_telegram_poll(question_text, options, correct_index):
     }
     
     try:
+        print(f"Sending poll with payload:")
+        print(f"  Question: {question_text[:50]}...")
+        print(f"  Options: {len(truncated_options)} options")
+        print(f"  Correct index: {correct_index}")
+        
         response = requests.post(url, json=payload, timeout=30)
+        
+        if response.status_code != 200:
+            print(f"✗ Telegram API Error Response:")
+            print(f"  Status: {response.status_code}")
+            print(f"  Response: {response.text}")
+        
         response.raise_for_status()
         return response.json()
     except Exception as e:
         print(f"✗ Error sending poll: {e}")
+        print(f"  Payload was: {payload}")
         raise
 
 
