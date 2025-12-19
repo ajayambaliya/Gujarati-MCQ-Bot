@@ -154,10 +154,6 @@ def send_promotional_message():
     
     # Build compact promotional message
     promo_message = """📚 <b>Current Adda</b>
-🎯 <b>ગુજરાત સરકારી નોકરી તૈયારી</b>
-
-✅ દરરોજ MCQ પ્રશ્નો
-✅ ગુજરાતી કરંટ અફેર્સ
 
 🔔 <b>જોઈન કરો:</b> https://t.me/currentadda"""
     
@@ -388,3 +384,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
